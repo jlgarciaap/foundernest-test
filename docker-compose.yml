@@ -1,0 +1,28 @@
+version: '3'
+services:
+  pgDb:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: fnest1234
+      PGPASSWORD: fnest1234
+      POSTGRES_DB: fnestdb
+    ports: ["5432:5432"]
+    volumes:
+      - ./docker-database/:/docker-entrypoint-initdb.d/
+  service-criteria:
+    restart: unless-stopped
+    build:
+      context: ./service_criteria/
+      dockerfile: dockerfile
+    depends_on:
+      - pgDb
+  gateway:
+    restart: unless-stopped
+    build:
+      context: ./gateway/
+      dockerfile: dockerfile
+    ports: ["80:3000"]
+    depends_on:
+      - service-criteria
+      - pgDb
